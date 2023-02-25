@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Feb 21 15:12:56 2023
+Created on Sat Feb 25 12:38:27 2023
 
 @author: Admin
 """
@@ -9,15 +9,14 @@ import os
 from uuid import uuid4
 
 from flask import Flask, request, render_template, send_from_directory
+from tensorflow.keras.preprocessing import image
+import numpy as np
+from keras.models import load_model
 
 app = Flask(__name__)
-# app = Flask(__name__, static_folder="images")
-
-
-
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-
 classes = ['acerolas','apples','Apricot','apricots','Avacado','avacados','bananas','blueberries','cantaloupes','cherries','Cherry2','coconuts','figs','grapefruits','grapes','guava','Hazelnut','Huckleberry','kiwifruit','lemons','Lychee','Mandarine','Mango','Mango Red','mangos','olives','Orange','oranges','Papaya','Passion Fruit','passionfruit','Peach','peaches','pears','pineapples','Plum','plums','pomegranates','Rambutan','raspberries','Raspberry','Redcurrant','Salak','strawberries','Strawberry','watermelons']
+new_model = load_model('model.h5')
 
 @app.route("/")
 def index():
@@ -26,10 +25,9 @@ def index():
 @app.route("/upload", methods=["POST"])
 def upload():
     target = os.path.join(APP_ROOT, 'images/')
-    target = os.path.join(APP_ROOT, 'static/')
     print(target)
     if not os.path.isdir(target):
-            os.mkdir(target)
+        os.mkdir(target)
     else:
         print("Couldn't create upload directory: {}".format(target))
     print(request.files.getlist("file"))
@@ -41,14 +39,10 @@ def upload():
         print ("Accept incoming file:", filename)
         print ("Save it to:", destination)
         upload.save(destination)
-        #import tensorflow as tf
-        import numpy as np
-        from keras.preprocessing import image
 
-        from keras.models import load_model
-        new_model = load_model('model.h5')
-        new_model.summary()
-        test_image = image.load_img('images\\'+filename,target_size=(64,64))
+        ttt=r'\ '
+        ttt.strip()
+        test_image = image.load_img(os.path.join(APP_ROOT, f"images/{filename}"), target_size=(64, 64))
         test_image = image.img_to_array(test_image)
         test_image = np.expand_dims(test_image, axis = 0)
         result = new_model.predict(test_image)
